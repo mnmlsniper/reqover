@@ -47,7 +47,10 @@ app.get('/original',async (req, res) => {
 
 function proxyReq(proxyReq, req, res) {
   // add custom header to request
-  spec.withOperationReturningString(proxyReq.method.toLowerCase(), proxyReq.path)
+
+  const method = proxyReq.method.toLowerCase()
+  const path = proxyReq.path
+  spec.withOperation(method, path)
   // or log the req
 }
 
