@@ -9,20 +9,36 @@ import swaggerParser from 'swagger-parser';
 import UrlPattern from 'url-pattern'
 // Create Express Server
 const app = express();
-const spec = anOpenApiSpec()
+// const spec = anOpenApiSpec()
+
+const spec = {
+  paths: {}
+}
 
 // Configuration
 const PORT = 3000;
 const HOST = "localhost";
-const API_SERVICE_URL = "https://petstore.swagger.io/";
+const API_SERVICE_URL = "https://petstore.swagger.io";
 
 // Logging
 app.use(morgan('dev'));
 
 // Info GET endpoint
 app.get('/info', (req, res, next) => {
+  const a = Object.entries(data).forEach( ([key, value]) => {
+       const specificationData = {
+          parameters: [],//(ParameterObject | ReferenceObject),
+          requestBody: null,//RequestBodyObject | ReferenceObject,
+          responses: value.responses,
+        }
+
+        spec.withOperation(value.methodName, key, specificationData)
+  })
+
   res.send(spec.build());
 });
+
+
 
 function regExMatchOfPath(apiPath, rPath) {
   const options = {
@@ -36,29 +52,43 @@ function regExMatchOfPath(apiPath, rPath) {
 
 app.get('/original',async (req, res) => {
   const swaggerInfo = await swaggerParser.validate("https://petstore.swagger.io/v2/swagger.json");
-  const covered = spec.build();
+  // const covered = spec.build();
 
   const basePath = swaggerInfo.basePath
-
+  const coveredPaths = spec.paths
   const apiPaths = Object.entries(swaggerInfo.paths)
+  const testsCoveredApis = Object.keys(coveredPaths)
 
-  const testsCoveredApis = Object.keys(covered.paths)
-
-
-  const apiCovList = apiPaths.map(apiPath => {
-    const swaggerPath = `${basePath}${apiPath[0]}`
+  const apiCovList = apiPaths.map(([apiPath, value]) => {
+    const swaggerPath = `${basePath}${apiPath}`
 
     const coveredPath = testsCoveredApis.find(path => {
-      return regExMatchOfPath(swaggerPath, path);
+      return regExMatchOfPath(swaggerPath, path)
     })
+
+    let apiResponses = {}
+
+    if (coveredPath){
+      const covered = coveredPaths[coveredPath]
+      Object.entries(value).forEach(([methodName, values]) => {
+        console.log()
+        if (methodName in covered){
+          apiResponses = Object.keys(values.responses).map(resp => {
+            let status = false
+            const coveredResponseCode = Object.keys(covered[methodName].responses).find(r => r == resp)
+            if(coveredResponseCode){
+              status = true
+            }
+  
+            return {[resp]: status}
+          })
+        }
+      })
+    }    
 
     const coverageResult = {
       path: swaggerPath,
-      covered: false
-    }
-
-    if (coveredPath){
-      coverageResult.covered = true
+      responses: apiResponses
     }
 
     return coverageResult
@@ -68,12 +98,26 @@ app.get('/original',async (req, res) => {
 })
 
 function proxyReq(proxyReq, req, res) {
-  // add custom header to request
-
-  const method = proxyReq.method.toLowerCase()
-  const path = proxyReq.path
-  spec.withOperation(method, path)
+  // add custom header to request  
   // or log the req
+}
+
+function proxyRes(proxyRes, req, res) {
+  const method = req.method.toLowerCase()
+  const responseStatus = `${proxyRes.statusCode}`
+  const path = req.originalUrl
+
+  let d = spec.paths[path]
+  if(d){
+    d[[method]][responses][[responseStatus]] = {}
+  }else {
+    spec.paths[path] = {
+        [method]: {responses: {
+          [responseStatus]: {}
+        }
+      }
+    }
+  }
 }
 
 // Proxy endpoints
@@ -83,7 +127,8 @@ app.use('/', createProxyMiddleware({
   pathRewrite: {
       [`^/`]: '',
   },
-  onProxyReq: proxyReq
+  onProxyReq: proxyReq,
+  onProxyRes: proxyRes,
 }));
 
 // Start the Proxy
