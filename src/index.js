@@ -11,33 +11,8 @@ import UrlPattern from 'url-pattern'
 const app = express();
 // const spec = anOpenApiSpec()
 
-const spec ={
-  paths: {
-    "/v2/pet/9222968140497114544": {
-      get: {
-        responses: {
-          "404": {
-          },
-        },
-      },
-    },
-    "/v2/pet/findByStatus": {
-      get: {
-        responses: {
-          "200": {
-          },
-        },
-      },
-    },
-    "/v2/pet/200": {
-      get: {
-        responses: {
-          "200": {
-          },
-        },
-      },
-    },
-  },
+const spec = {
+  paths: {}
 }
 
 
@@ -81,12 +56,16 @@ function getCovered(swaggerPath, coveredPaths){
   coveredPaths.forEach(path => {
       Object.entries(path[1]).forEach(([methodName, data]) => {
         const coveredResponses = Object.keys(data.responses)
+        const coveredParameters = data.parameters
+
         if (swaggerPath in result){
           result[swaggerPath][methodName].responses.push(...coveredResponses)
+          result[swaggerPath][methodName].parameters.push(...coveredParameters)
         } else {
            result[swaggerPath] = {
              [methodName]: {
-               responses: [...coveredResponses]
+               responses: [...coveredResponses],
+               parameters: coveredParameters
              }
            }
         }
@@ -97,6 +76,31 @@ function getCovered(swaggerPath, coveredPaths){
 
 function isEmpty(obj) {
   return Object.keys(obj).length === 0;
+}
+
+function calculateResponsesCoverage(coveredResponses, swaggerResponses){
+  const expectedResponses = Object.keys(swaggerResponses)
+
+  return expectedResponses.map(r => {
+          let status = false
+          if (coveredResponses?.includes(r)){
+            status = true
+          }
+
+          return {[r]: status}
+  })
+}
+
+function calculateParametersCoverage(coveredParameters, swaggerParameters){
+   const swaggerParams = swaggerParameters.map((p) => {
+     return  { 
+       name: p.name, 
+       required: p.required,
+       options: p.items?.enum,
+       covered: false
+      } 
+   })
+   return swaggerParams
 }
 
 app.get('/cov',async (req, res) => {
@@ -117,16 +121,18 @@ app.get('/cov',async (req, res) => {
     const coverageResult = getCovered(swaggerPath, coveredPaths)
 
     if(isEmpty(coverageResult)){
-
       const expected = {}
       Object.entries(value).forEach(([methodName, data]) => {
           const expectedResponses = Object.keys(data.responses)
           const responseCoverageResult = expectedResponses.map(r => {
             return {[r]: false}
           })
+          
+          const parametersCoverage = calculateParametersCoverage([], data.parameters)
 
           expected[methodName] = {
-            responses: responseCoverageResult
+            responses: responseCoverageResult,
+            parameters: parametersCoverage
           }
       })
 
@@ -136,19 +142,14 @@ app.get('/cov',async (req, res) => {
     const expected = {}
     Object.entries(value).forEach(([methodName, data]) => {
         const coveredResponses = coverageResult[swaggerPath][methodName]?.responses
-        const expectedResponses = Object.keys(data.responses)
+        const responseCoverage = calculateResponsesCoverage(coveredResponses, data.responses)
 
-        const responseCoverageResult = expectedResponses.map(r => {
-          let status = false
-          if (coveredResponses?.includes(r)){
-            status = true
-          }
-
-          return {[r]: status}
-        })
+        const coveredParameters = coverageResult[swaggerPath][methodName]?.parameters
+        const parametersCoverage = calculateParametersCoverage(coveredParameters, data.parameters)
 
         expected[methodName] = {
-          responses: responseCoverageResult
+          responses: responseCoverage,
+          parameters: parametersCoverage
         }
     })
 
@@ -168,16 +169,17 @@ function proxyReq(proxyReq, req, res) {
 function proxyRes(proxyRes, req, res) {
   const method = req.method.toLowerCase()
   const responseStatus = `${proxyRes.statusCode}`
-  const path = req.originalUrl
+  const path = req.originalUrl.split('?')[0]
   const params = req.query
 
-  if(d){
-    d[[method]][responses][[responseStatus]] = {}
+  if(spec.paths[path]){
+    spec.paths[path][method].responses[responseStatus] = {}
+    spec.paths[path][method].parameters.push(params)
   }else {
     spec.paths[path] = {
-        [method]: {responses: {
-          [responseStatus]: {}
-        }
+        [method]: {
+          responses: {[responseStatus]: {}},
+          parameters: [params]
       }
     }
   }
