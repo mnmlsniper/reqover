@@ -14,7 +14,7 @@ const spec = anOpenApiSpec()
 // Configuration
 const PORT = 3000;
 const HOST = "localhost";
-const API_SERVICE_URL = "https://petstore.swagger.io/v2/";
+const API_SERVICE_URL = "https://petstore.swagger.io/";
 
 // Logging
 app.use(morgan('dev'));
@@ -24,25 +24,47 @@ app.get('/info', (req, res, next) => {
   res.send(spec.build());
 });
 
-app.get('/original',async (req, res) => {
-  const original = await swaggerParser.validate("https://petstore.swagger.io/v2/swagger.json");
-  const actual = spec.build();
-
-  const originalPaths = original.paths
-  const actualPaths = actual.paths
-
+function regExMatchOfPath(apiPath, rPath) {
   const options = {
-    optionalSegmentStartChar : '{',
-    optionalSegmentEndChar : '}',
-    segmentNameStartChar : ''
-  }
+    optionalSegmentStartChar: "{",
+    optionalSegmentEndChar: "}",
+  };
+  const pattern = new UrlPattern(apiPath.replace(/\/{/g, "{/:"), options);
+  return pattern.match(rPath);
+}
 
-  var pattern = new UrlPattern('/pet/{petId}', options);
 
-  const match = pattern.match('/pet/1')
+app.get('/original',async (req, res) => {
+  const swaggerInfo = await swaggerParser.validate("https://petstore.swagger.io/v2/swagger.json");
+  const covered = spec.build();
 
-  console.log()
-  res.send(actualPaths)
+  const basePath = swaggerInfo.basePath
+
+  const apiPaths = Object.entries(swaggerInfo.paths)
+
+  const testsCoveredApis = Object.keys(covered.paths)
+
+
+  const apiCovList = apiPaths.map(apiPath => {
+    const swaggerPath = `${basePath}${apiPath[0]}`
+
+    const coveredPath = testsCoveredApis.find(path => {
+      return regExMatchOfPath(swaggerPath, path);
+    })
+
+    const coverageResult = {
+      path: swaggerPath,
+      covered: false
+    }
+
+    if (coveredPath){
+      coverageResult.covered = true
+    }
+
+    return coverageResult
+  });
+  
+  res.send(apiCovList)
 })
 
 function proxyReq(proxyReq, req, res) {
