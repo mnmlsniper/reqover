@@ -94,7 +94,9 @@ function calculateResponsesCoverage(coveredResponses, swaggerResponses){
 function calculateParametersCoverage(coveredParameters, swaggerParameters){
    const swaggerParams = swaggerParameters.map((p) => {
      return  { 
-       name: p.name, 
+       name: p.name,
+       in: p.in,
+       type: p.type, 
        required: p.required,
        options: p.items?.enum,
        covered: false
