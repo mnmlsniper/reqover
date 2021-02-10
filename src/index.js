@@ -11,9 +11,36 @@ import UrlPattern from 'url-pattern'
 const app = express();
 // const spec = anOpenApiSpec()
 
-const spec = {
-  paths: {}
+const spec ={
+  paths: {
+    "/v2/pet/9222968140497114544": {
+      get: {
+        responses: {
+          "404": {
+          },
+        },
+      },
+    },
+    "/v2/pet/findByStatus": {
+      get: {
+        responses: {
+          "200": {
+          },
+        },
+      },
+    },
+    "/v2/pet/200": {
+      get: {
+        responses: {
+          "200": {
+          },
+        },
+      },
+    },
+  },
 }
+
+
 
 // Configuration
 const PORT = 3000;
@@ -49,51 +76,74 @@ function regExMatchOfPath(apiPath, rPath) {
   return pattern.match(rPath);
 }
 
+function getCovered(swaggerPath, coveredPaths){
+  const result = {}
+  coveredPaths.forEach(path => {
+      Object.entries(path[1]).forEach(([methodName, data]) => {
+        const coveredResponses = Object.keys(data.responses)
+        if (swaggerPath in result){
+          result[swaggerPath][methodName].responses.push(...coveredResponses)
+        } else {
+           result[swaggerPath] = {
+             [methodName]: {
+               responses: [...coveredResponses]
+             }
+           }
+        }
+      })
+  })
+  return result
+}
 
-app.get('/original',async (req, res) => {
+function isEmpty(obj) {
+  return Object.keys(obj).length === 0;
+}
+
+app.get('/cov',async (req, res) => {
   const swaggerInfo = await swaggerParser.validate("https://petstore.swagger.io/v2/swagger.json");
-  // const covered = spec.build();
-
+  
   const basePath = swaggerInfo.basePath
   const coveredPaths = spec.paths
   const apiPaths = Object.entries(swaggerInfo.paths)
-  const testsCoveredApis = Object.keys(coveredPaths)
+  const testsCoveredApis = Object.entries(coveredPaths)
 
   const apiCovList = apiPaths.map(([apiPath, value]) => {
     const swaggerPath = `${basePath}${apiPath}`
 
-    const coveredPath = testsCoveredApis.find(path => {
-      return regExMatchOfPath(swaggerPath, path)
+    const coveredPaths = testsCoveredApis.filter(path => {
+      return regExMatchOfPath(swaggerPath, path[0])
     })
 
-    let apiResponses = {}
+    const coverageResult = getCovered(swaggerPath, coveredPaths)
 
-    if (coveredPath){
-      const covered = coveredPaths[coveredPath]
-      Object.entries(value).forEach(([methodName, values]) => {
-        console.log()
-        if (methodName in covered){
-          apiResponses = Object.keys(values.responses).map(resp => {
-            let status = false
-            const coveredResponseCode = Object.keys(covered[methodName].responses).find(r => r == resp)
-            if(coveredResponseCode){
-              status = true
-            }
-  
-            return {[resp]: status}
-          })
-        }
-      })
-    }    
-
-    const coverageResult = {
-      path: swaggerPath,
-      responses: apiResponses
+    if(isEmpty(coverageResult)){
+      return {}
     }
 
-    return coverageResult
-  });
-  
+    const expected = {}
+    Object.entries(value).forEach(([methodName, data]) => {
+        const coveredResponses = coverageResult[swaggerPath][methodName]?.responses
+        const expectedResponses = Object.keys(data.responses)
+
+        const responseCoverageResult = expectedResponses.map(r => {
+          let status = false
+          if (coveredResponses?.includes(r)){
+            status = true
+          }
+
+          return {[r]: status}
+        })
+
+        expected[methodName] = {
+          responses: responseCoverageResult
+        }
+    })
+
+    return {
+      [apiPath]:expected
+    }
+  })
+
   res.send(apiCovList)
 })
 
