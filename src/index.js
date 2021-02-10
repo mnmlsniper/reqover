@@ -10,6 +10,7 @@ import UrlPattern from 'url-pattern'
 // Create Express Server
 const app = express();
 // const spec = anOpenApiSpec()
+app.set("view engine", "ejs");
 
 const spec = {
   paths: {}
@@ -105,7 +106,12 @@ function calculateParametersCoverage(coveredParameters, swaggerParameters){
    return swaggerParams
 }
 
-app.get('/cov',async (req, res) => {
+app.use('/report', async (req, res) => {
+  const reportData = await getCoverageReport()
+  res.render('index', { data: data })
+})
+
+async function getCoverageReport(){
   const swaggerInfo = await swaggerParser.validate("https://petstore.swagger.io/v2/swagger.json");
   
   const basePath = swaggerInfo.basePath
@@ -160,7 +166,11 @@ app.get('/cov',async (req, res) => {
     }
   })
 
-  res.send(apiCovList)
+  return apiCovList
+}
+
+app.get('/cov', async (req, res) => {
+  res.send(await getCoverageReport())
 })
 
 function proxyReq(proxyReq, req, res) {
