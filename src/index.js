@@ -117,7 +117,20 @@ app.get('/cov',async (req, res) => {
     const coverageResult = getCovered(swaggerPath, coveredPaths)
 
     if(isEmpty(coverageResult)){
-      return {}
+
+      const expected = {}
+      Object.entries(value).forEach(([methodName, data]) => {
+          const expectedResponses = Object.keys(data.responses)
+          const responseCoverageResult = expectedResponses.map(r => {
+            return {[r]: false}
+          })
+
+          expected[methodName] = {
+            responses: responseCoverageResult
+          }
+      })
+
+      return {[apiPath]:expected}
     }
 
     const expected = {}
@@ -156,8 +169,8 @@ function proxyRes(proxyRes, req, res) {
   const method = req.method.toLowerCase()
   const responseStatus = `${proxyRes.statusCode}`
   const path = req.originalUrl
+  const params = req.query
 
-  let d = spec.paths[path]
   if(d){
     d[[method]][responses][[responseStatus]] = {}
   }else {
