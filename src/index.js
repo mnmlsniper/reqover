@@ -32,6 +32,7 @@ async function getSwaggerPaths(swaggerSpec){
   const apiList = apiPaths.map(([apiPath, value]) => {
     const methods = Object.entries(value).map(([methodName, data]) => {
       return {
+        path: `${basePath}${apiPath}`,
         name: methodName.toUpperCase(),
         responses: Object.keys(data.responses),
         parameters: data.parameters
@@ -59,7 +60,7 @@ function regExMatchOfPath(apiPath, rPath) {
 
 app.use('/report', async (req, res) => {
   const reportData = await getCoverageReport()
-  res.render('index', { data: data })
+  res.render('index', { data: reportData })
 })
 
 function findCoveredApis(apiItem){
@@ -91,10 +92,11 @@ async function getCoverageReport(){
       .filter(m => !coveredParameters.includes(m))
 
       return {
+        path: apiItem['path'],
         method: method.name,
         responses: {
           missed: missingStatusCodes,
-          covered: coveredStatusCodes
+          covered: [...new Set(coveredStatusCodes)]
         },
         parameters: {
           missed: missingParameters,
@@ -103,13 +105,10 @@ async function getCoverageReport(){
       }
     })
 
-    return {
-      path: apiItem['path'],
-      methods: coveredMethods
-    }
+    return coveredMethods
   })
 
-  return apiCovList
+  return apiCovList.flat()
 }
 
 app.get('/cov', async (req, res) => {
