@@ -1,10 +1,6 @@
 import express from 'express';
 import morgan from "morgan";
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import {
-  anOpenApiSpec,
-  OpenApiSpecBuilder,
-} from '@loopback/openapi-spec-builder';
 import swaggerParser from 'swagger-parser';
 import UrlPattern from 'url-pattern'
 // Create Express Server
@@ -12,11 +8,7 @@ const app = express();
 // const spec = anOpenApiSpec()
 app.set("view engine", "ejs");
 
-const spec = {
-  paths: {}
-}
-
-
+const spec = []
 
 // Configuration
 const PORT = 3000;
@@ -27,20 +19,33 @@ const API_SERVICE_URL = "https://petstore.swagger.io";
 app.use(morgan('dev'));
 
 // Info GET endpoint
-app.get('/info', (req, res, next) => {
-  const a = Object.entries(data).forEach( ([key, value]) => {
-       const specificationData = {
-          parameters: [],//(ParameterObject | ReferenceObject),
-          requestBody: null,//RequestBodyObject | ReferenceObject,
-          responses: value.responses,
-        }
-
-        spec.withOperation(value.methodName, key, specificationData)
-  })
-
-  res.send(spec.build());
+app.get('/info', async (req, res, next) => {
+  const apiList = await getSwaggerPaths("https://petstore.swagger.io/v2/swagger.json")
+  res.send(apiList)
 });
 
+async function getSwaggerPaths(swaggerSpec){
+  const swaggerInfo = await swaggerParser.validate(swaggerSpec);
+  const basePath = swaggerInfo.basePath
+  const apiPaths = Object.entries(swaggerInfo.paths)
+  
+  const apiList = apiPaths.map(([apiPath, value]) => {
+    const methods = Object.entries(value).map(([methodName, data]) => {
+      return {
+        name: methodName.toUpperCase(),
+        responses: Object.keys(data.responses),
+        parameters: data.parameters
+      }
+    });
+    
+    return {
+        path: `${basePath}${apiPath}`,
+        methods: methods
+    }
+  });
+
+  return apiList
+}
 
 
 function regExMatchOfPath(apiPath, rPath) {
@@ -52,117 +57,55 @@ function regExMatchOfPath(apiPath, rPath) {
   return pattern.match(rPath);
 }
 
-function getCovered(swaggerPath, coveredPaths){
-  const result = {}
-  coveredPaths.forEach(path => {
-      Object.entries(path[1]).forEach(([methodName, data]) => {
-        const coveredResponses = Object.keys(data.responses)
-        const coveredParameters = data.parameters
-
-        if (swaggerPath in result){
-          result[swaggerPath][methodName].responses.push(...coveredResponses)
-          result[swaggerPath][methodName].parameters.push(...coveredParameters)
-        } else {
-           result[swaggerPath] = {
-             [methodName]: {
-               responses: [...coveredResponses],
-               parameters: coveredParameters
-             }
-           }
-        }
-      })
-  })
-  return result
-}
-
-function isEmpty(obj) {
-  return Object.keys(obj).length === 0;
-}
-
-function calculateResponsesCoverage(coveredResponses, swaggerResponses){
-  const expectedResponses = Object.keys(swaggerResponses)
-
-  return expectedResponses.map(r => {
-          let status = false
-          if (coveredResponses?.includes(r)){
-            status = true
-          }
-
-          return {[r]: status}
-  })
-}
-
-function calculateParametersCoverage(coveredParameters, swaggerParameters){
-   const swaggerParams = swaggerParameters.map((p) => {
-     return  { 
-       name: p.name,
-       in: p.in,
-       type: p.type, 
-       required: p.required,
-       options: p.items?.enum,
-       covered: false
-      } 
-   })
-   return swaggerParams
-}
-
 app.use('/report', async (req, res) => {
   const reportData = await getCoverageReport()
   res.render('index', { data: data })
 })
 
+function findCoveredApis(apiItem){
+  return spec.filter(path => {
+    return regExMatchOfPath(apiItem['path'], path['path'])
+  })
+}
+
 async function getCoverageReport(){
-  const swaggerInfo = await swaggerParser.validate("https://petstore.swagger.io/v2/swagger.json");
-  
-  const basePath = swaggerInfo.basePath
-  const coveredPaths = spec.paths
-  const apiPaths = Object.entries(swaggerInfo.paths)
-  const testsCoveredApis = Object.entries(coveredPaths)
+  const apiList = await getSwaggerPaths("https://petstore.swagger.io/v2/swagger.json")
 
-  const apiCovList = apiPaths.map(([apiPath, value]) => {
-    const swaggerPath = `${basePath}${apiPath}`
+  const apiCovList = apiList.map(apiItem => {
+    const coveredApis = findCoveredApis(apiItem)
 
-    const coveredPaths = testsCoveredApis.filter(path => {
-      return regExMatchOfPath(swaggerPath, path[0])
-    })
+    const coveredMethods = apiItem.methods.map(method => {
+      const coveredMethods = coveredApis.filter(c => c.method == method.name)
+      const coveredStatusCodes = coveredMethods.map(m => m.response)
+      const missingStatusCodes = method.responses.filter(s => !coveredStatusCodes.includes(s));
 
-    const coverageResult = getCovered(swaggerPath, coveredPaths)
-
-    if(isEmpty(coverageResult)){
-      const expected = {}
-      Object.entries(value).forEach(([methodName, data]) => {
-          const expectedResponses = Object.keys(data.responses)
-          const responseCoverageResult = expectedResponses.map(r => {
-            return {[r]: false}
-          })
-          
-          const parametersCoverage = calculateParametersCoverage([], data.parameters)
-
-          expected[methodName] = {
-            responses: responseCoverageResult,
-            parameters: parametersCoverage
-          }
-      })
-
-      return {[apiPath]:expected}
-    }
-
-    const expected = {}
-    Object.entries(value).forEach(([methodName, data]) => {
-        const coveredResponses = coverageResult[swaggerPath][methodName]?.responses
-        const responseCoverage = calculateResponsesCoverage(coveredResponses, data.responses)
-
-        const coveredParameters = coverageResult[swaggerPath][methodName]?.parameters
-        const parametersCoverage = calculateParametersCoverage(coveredParameters, data.parameters)
-
-        expected[methodName] = {
-          responses: responseCoverage,
-          parameters: parametersCoverage
+      const coveredParameters = coveredMethods.map(m => { return m.parameters.map(p=> p.name)}).flat()
+      const missingParameters = method.parameters.map(p => { 
+        return {
+          name: p.name,
+          required: p.required,
+          in: p.in,
+          type: p.type
         }
+      }).map(mp => mp.name)
+      .filter(m => !coveredParameters.includes(m))
+
+      return {
+        method: method.name,
+        responses: {
+          missed: missingStatusCodes,
+          covered: coveredStatusCodes
+        },
+        parameters: {
+          missed: missingParameters,
+          covered: coveredParameters
+        }
+      }
     })
 
     return {
-      [apiPath]:expected
+      path: apiItem['path'],
+      methods: coveredMethods
     }
   })
 
@@ -179,22 +122,18 @@ function proxyReq(proxyReq, req, res) {
 }
 
 function proxyRes(proxyRes, req, res) {
-  const method = req.method.toLowerCase()
+  const method = req.method
   const responseStatus = `${proxyRes.statusCode}`
   const path = req.originalUrl.split('?')[0]
   const params = req.query
+  const queryParameters = Object.entries(params).map(([p, v]) => { return {name: p, value: v} })
 
-  if(spec.paths[path]){
-    spec.paths[path][method].responses[responseStatus] = {}
-    spec.paths[path][method].parameters.push(params)
-  }else {
-    spec.paths[path] = {
-        [method]: {
-          responses: {[responseStatus]: {}},
-          parameters: [params]
-      }
-    }
-  }
+  spec.push({
+    path: path,
+    method: method,
+    response: responseStatus,
+    parameters: queryParameters
+  })
 }
 
 // Proxy endpoints
