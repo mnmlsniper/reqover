@@ -77,7 +77,7 @@ async function getCoverageReport(){
 
     const coveredMethods = apiItem.methods.map(method => {
       const coveredMethods = coveredApis.filter(c => c.method == method.name)
-      const coveredStatusCodes = coveredMethods.map(m => m.response)
+      const coveredStatusCodes = [...new Set(coveredMethods.map(m => m.response))]
       const missingStatusCodes = method.responses.filter(s => !coveredStatusCodes.includes(s));
 
       const coveredParameters = coveredMethods.map(m => { return m.parameters.map(p=> p.name)}).flat()
@@ -91,12 +91,24 @@ async function getCoverageReport(){
       }).map(mp => mp.name)
       .filter(m => !coveredParameters.includes(m))
 
+
+      const coverage = (coveredStatusCodes.length / (coveredStatusCodes.length + missingStatusCodes.length) * 100).toFixed()
+
+      let status = "danger"
+      if (coverage > 0 && coverage < 100){
+        status = 'warning'
+      } else {
+        status = "success"
+      }
+
       return {
         path: apiItem['path'],
         method: method.name,
+        coverage: coverage,
+        status:  status,
         responses: {
           missed: missingStatusCodes,
-          covered: [...new Set(coveredStatusCodes)]
+          covered: coveredStatusCodes
         },
         parameters: {
           missed: missingParameters,
