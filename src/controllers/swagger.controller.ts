@@ -47,11 +47,12 @@ class AuthController {
         const apiList = apiPaths.map(([apiPath, value]) => {
             const methods = Object.entries(value).map(([methodName, data]) => {
                 const {responses, parameters} = data;
+
                 return {
                     path: `${basePath}${apiPath}`,
                     name: methodName.toUpperCase(),
                     responses: Object.keys(responses),
-                    parameters,
+                    parameters: parameters ? parameters : [],
                 };
             });
 
