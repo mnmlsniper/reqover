@@ -6,7 +6,7 @@ import compression from 'compression';
 import {logger} from './utils/logger';
 import {createProxyMiddleware} from 'http-proxy-middleware';
 
-const API_SERVICE_URL = 'https://petstore.swagger.io';
+const API_SERVICE_URL = process.env.API_SERVICE_URL || 'https://petstore.swagger.io';
 
 export const spec = [];
 

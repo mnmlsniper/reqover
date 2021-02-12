@@ -4,7 +4,7 @@ import UrlPattern from 'url-pattern';
 import {spec} from '../app';
 
 class AuthController {
-    private readonly swaggerUrl = 'https://petstore.swagger.io/v2/swagger.json';
+    private readonly SWAGGER_SPEC = process.env.SWAGGER_SPEC || 'https://petstore.swagger.io/v2/swagger.json';
 
     public specs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
@@ -16,7 +16,7 @@ class AuthController {
 
     public info = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const apiList = await this.getSwaggerPaths(this.swaggerUrl);
+            const apiList = await this.getSwaggerPaths(this.SWAGGER_SPEC);
             res.send(apiList);
         } catch (error) {
             next(error);
@@ -25,7 +25,7 @@ class AuthController {
 
     public report = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const reportData = await this.getCoverageReport();
+            const reportData = await this.getCoverageReport(this.SWAGGER_SPEC);
             res.render('index', {data: reportData});
         } catch (error) {
             next(error);
@@ -34,7 +34,7 @@ class AuthController {
 
     public coverage = async (req: any, res: Response, next: NextFunction): Promise<void> => {
         try {
-            res.send(await this.getCoverageReport());
+            res.send(await this.getCoverageReport(this.SWAGGER_SPEC));
         } catch (error) {
             next(error);
         }
@@ -64,8 +64,8 @@ class AuthController {
         return apiList;
     };
 
-    private getCoverageReport = async () => {
-        const apiList = await this.getSwaggerPaths('https://petstore.swagger.io/v2/swagger.json');
+    private getCoverageReport = async (swaggerSpec: any) => {
+        const apiList = await this.getSwaggerPaths(swaggerSpec);
 
         const apiCovList: any = apiList.map((apiItem) => {
             const coveredApis = this.findCoveredApis(apiItem);
