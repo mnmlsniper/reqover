@@ -33,6 +33,9 @@ class App {
                 },
                 onProxyReq: proxyReq,
                 onProxyRes: proxyRes,
+                // router: (req) => {
+                //     return `${req.protocol}://${req.hostname}`;
+                // },
             }),
         );
     }
