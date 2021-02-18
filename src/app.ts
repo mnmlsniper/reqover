@@ -6,6 +6,7 @@ import compression from 'compression';
 import {logger} from './utils/logger';
 import {createProxyMiddleware} from 'http-proxy-middleware';
 import {API_SERVICE_URL} from './config/constants';
+import bodyParser from 'body-parser'
 
 export const spec = [];
 
@@ -56,12 +57,13 @@ class App {
         } else if (this.env === 'development') {
             this.app.use(morgan('dev'));
         }
+        
+        
         this.app.use(hpp());
         this.app.use(helmet());
-        // this brakes a proxy
-        // this.app.use(compression());
-        // this.app.use(express.json());
-        this.app.use(express.urlencoded({extended: true}));
+        this.app.use(compression());
+        this.app.use(express.json());
+        // this.app.use(express.urlencoded({extended: true}));
         this.app.use(express.static('vendor'));
     }
 
@@ -74,7 +76,14 @@ class App {
 
 const proxyReq = (proxyReq, req, next) => {
     // add custom header to request
-    console.log();
+    if(req.body) {
+        let bodyData = JSON.stringify(req.body);
+        // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
+        proxyReq.setHeader('Content-Type','application/json');
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+        // stream the content
+        proxyReq.write(bodyData);
+    }
     // or log the req
 };
 
@@ -87,11 +96,14 @@ const proxyRes = (proxyRes, req, res) => {
         return {name: p, value: v};
     });
 
+    const body = req.body
+
     spec.push({
         path: path,
         method: method,
         response: responseStatus,
         parameters: queryParameters,
+        body: body
     });
 };
 export default App;

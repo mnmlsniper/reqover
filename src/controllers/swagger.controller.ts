@@ -13,6 +13,11 @@ class AuthController {
         }
     };
 
+    public reset = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+        spec.length =  0;
+        res.send({status: 'done'});
+    };
+
     public info = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const apiList = await this.getSwaggerPaths(SWAGGER_SPEC_URL);
@@ -76,11 +81,12 @@ class AuthController {
 
             const coveredMethods = apiItem.methods.map((method) => {
                 const {name, responses, parameters} = method;
-                const coveredMethods: any = coveredApis.filter((c) => c.method == name);
-                const coveredStatusCodes = [...new Set(coveredMethods.map((m) => m.response))];
+                const coveredMethodNames: any = coveredApis.filter((c) => c.method == name);
+
+                const coveredStatusCodes = [...new Set(coveredMethodNames.map((m) => m.response))];
                 const missingStatusCodes = responses.filter((s) => !coveredStatusCodes.includes(s));
 
-                const coveredParameters = [...new Set(coveredMethods
+                const coveredParameters = [...new Set(coveredMethodNames
                     .map((m) => {
                         return m.parameters.map((p) => p.name);
                     })
@@ -97,9 +103,16 @@ class AuthController {
                 let status = 'danger';
                 status = +coverage > 0 && +coverage < 100 ? 'warning' : 'success';
 
+                let requestsCount = 0
+                let bodies = []
+                if(coveredMethodNames.length > 0){
+                    requestsCount = coveredApis.length
+                    bodies = coveredApis.map(ca => ca.body)
+                }
+
                 return {
                     path: apiItem['path'],
-                    requests: coveredApis.length,
+                    requests: requestsCount,
                     method: name,
                     coverage,
                     status,
@@ -111,6 +124,7 @@ class AuthController {
                         missed: missingParameters,
                         covered: coveredParameters,
                     },
+                    bodies: bodies
                 };
             });
 
