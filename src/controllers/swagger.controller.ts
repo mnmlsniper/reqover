@@ -99,6 +99,7 @@ class AuthController {
 
                 return {
                     path: apiItem['path'],
+                    requests: coveredApis.length,
                     method: name,
                     coverage,
                     status,

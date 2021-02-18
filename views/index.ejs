@@ -34,10 +34,14 @@
                                     data-bs-target="#collapse-<%= index %>" aria-expanded="true"
                                     aria-controls="collapse-<%= index %>">
                                     <div class="row w-100">
-                                        <div class="col-9 api-path"><span>
+                                        <div class="col-7 api-path">
+                                            <span>
                                                 <%= item.method %>
                                             </span>
                                             <%= item.path %>
+                                        </div>
+                                        <div class="col-2">
+                                            <%= item.requests %> calls
                                         </div>
                                         <div class="col-2">
                                             <div class="progress">
