@@ -80,11 +80,11 @@ class AuthController {
                 const coveredStatusCodes = [...new Set(coveredMethods.map((m) => m.response))];
                 const missingStatusCodes = responses.filter((s) => !coveredStatusCodes.includes(s));
 
-                const coveredParameters = coveredMethods
+                const coveredParameters = [...new Set(coveredMethods
                     .map((m) => {
                         return m.parameters.map((p) => p.name);
                     })
-                    .flat();
+                    .flat())];
                 const missingParameters = parameters
                     .map(({name, required, type, ...p}) => {
                         return {name, required, in: p.in, type};
@@ -136,6 +136,17 @@ class AuthController {
             }
 
             return this.regExMatchOfPath(apiPath, currentPath);
+        }).map(api => {
+            console.log()
+            const currentPath = api['path'];
+            const match =  this.regExMatchOfPath(apiPath, currentPath);
+            if(match){
+                api.parameters.push(...Object.keys(match).map(k => {return { name: k }}))
+            }
+
+            return {
+                ...api
+            }
         });
     };
 
