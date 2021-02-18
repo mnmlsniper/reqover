@@ -58,8 +58,9 @@ class App {
         }
         this.app.use(hpp());
         this.app.use(helmet());
-        this.app.use(compression());
-        this.app.use(express.json());
+        // this brakes a proxy
+        // this.app.use(compression());
+        // this.app.use(express.json());
         this.app.use(express.urlencoded({extended: true}));
         this.app.use(express.static('vendor'));
     }
@@ -73,6 +74,7 @@ class App {
 
 const proxyReq = (proxyReq, req, next) => {
     // add custom header to request
+    console.log();
     // or log the req
 };
 
