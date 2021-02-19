@@ -130,7 +130,7 @@ class SwaggerController {
                         covered: coveredParameters,
                     },
                     bodies: bodies,
-                    mergedBody: this.mergeBody(bodies)
+                    mergedBody: this.mergeBody(bodies),
                 };
             });
 
@@ -140,16 +140,17 @@ class SwaggerController {
         const result = apiCovList.flat();
         return {
             all: result,
-            missing: result.filter(res => res.coverage == 0),
-            partial: result.filter(res => res.coverage != 0 && res.coverage < 100),
-            full: result.filter(res => res.coverage == 100),
-        }
+            missing: result.filter((res) => res.coverage == 0),
+            partial: result.filter((res) => res.coverage != 0 && res.coverage < 100),
+            full: result.filter((res) => res.coverage == 100),
+        };
     };
 
     private regExMatchOfPath = (apiPath: string, rPath: string) => {
         return new UrlPattern(apiPath.replace(/\/{/g, '{/:'), {
             optionalSegmentStartChar: '{',
             optionalSegmentEndChar: '}',
+            segmentNameCharset: 'a-zA-Z0-9_-',
         }).match(rPath);
     };
 
