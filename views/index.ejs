@@ -53,18 +53,18 @@
                       </li>
                   </ul>
                   <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
-                        <%- include('tab', { apiList: data.all });%>
-                    </div>
-                    <div class="tab-pane fade show active" id="missing" role="tabpanel" aria-labelledby="missing-tab">
-                        <%- include('tab', { apiList: data.missing });%>
-                    </div>
-                    <div class="tab-pane fade show active" id="partial" role="tabpanel" aria-labelledby="partial-tab">
-                        <%- include('tab', { apiList: data.partial });%>
-                    </div>
-                    <div class="tab-pane fade show active" id="covered" role="tabpanel" aria-labelledby="covered-tab">
-                        <%- include('tab', { apiList: data.full });%>
-                    </div>
+                        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                            <%- include('tab', {apiList: data.all});%>
+                        </div>
+                        <div class="tab-pane fade show" id="missing" role="tabpanel" aria-labelledby="missing-tab">
+                            <%- include('tab', {apiList: data.missing});%>
+                        </div>
+                        <div class="tab-pane fade show" id="partial" role="tabpanel" aria-labelledby="partial-tab">
+                            <%- include('tab', {apiList: data.partial});%>
+                        </div>
+                        <div class="tab-pane fade show" id="covered" role="tabpanel" aria-labelledby="full-tab">
+                            <%- include('tab', {apiList: data.full});%>
+                        </div>
                   </div>
             </div>
         </div>

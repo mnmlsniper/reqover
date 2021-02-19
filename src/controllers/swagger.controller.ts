@@ -141,7 +141,7 @@ class SwaggerController {
         return {
             all: result,
             missing: result.filter(res => res.coverage == 0),
-            partial: result.filter(res => res.coverage >  0 && res.coverage < 100),
+            partial: result.filter(res => res.coverage != 0 && res.coverage < 100),
             full: result.filter(res => res.coverage == 100),
         }
     };
