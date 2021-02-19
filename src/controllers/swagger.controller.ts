@@ -111,8 +111,9 @@ class SwaggerController {
                 let requestsCount = 0;
                 let bodies = [];
                 if (coveredMethodNames.length > 0) {
-                    requestsCount = coveredApis.length;
-                    bodies = coveredApis.map((ca) => ca.body);
+                    const covered = coveredApis.filter(a => a.method === method.name)
+                    requestsCount = covered.length;
+                    bodies = covered.map((ca) => ca.body);
                 }
 
                 return {
