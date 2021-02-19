@@ -54,6 +54,8 @@ class SwaggerController {
             let path = `${apiPath}`;
             if (!basePath) {
                 path = `${SWAGGER_BASE_PATH}${apiPath}`;
+            } else {
+                path = `${basePath}${apiPath}`;
             }
 
             const methods = Object.entries(value).map(([methodName, data]) => {
@@ -111,7 +113,7 @@ class SwaggerController {
                 let requestsCount = 0;
                 let bodies = [];
                 if (coveredMethodNames.length > 0) {
-                    const covered = coveredApis.filter(a => a.method === method.name)
+                    const covered = coveredApis.filter((a) => a.method === method.name);
                     requestsCount = covered.length;
                     bodies = covered.map((ca) => ca.body);
                 }
