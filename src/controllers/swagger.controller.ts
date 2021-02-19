@@ -103,7 +103,7 @@ class SwaggerController {
                     .map((mp) => mp.name)
                     .filter((m) => !coveredParameters.includes(m));
 
-                const coverage = ((coveredStatusCodes.length / (coveredStatusCodes.length + missingStatusCodes.length)) * 100).toFixed();
+                const coverage = +((coveredStatusCodes.length / (coveredStatusCodes.length + missingStatusCodes.length)) * 100).toFixed();
 
                 let status = 'danger';
                 status = +coverage > 0 && +coverage < 100 ? 'warning' : 'success';
@@ -137,7 +137,13 @@ class SwaggerController {
             return coveredMethods;
         });
 
-        return apiCovList.flat();
+        const result = apiCovList.flat();
+        return {
+            all: result,
+            missing: result.filter(res => res.coverage == 0),
+            partial: result.filter(res => res.coverage >  0 && res.coverage < 100),
+            full: result.filter(res => res.coverage == 100),
+        }
     };
 
     private regExMatchOfPath = (apiPath: string, rPath: string) => {
