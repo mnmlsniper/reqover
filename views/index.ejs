@@ -119,7 +119,7 @@
                                         </div>
                                         <% } %>
 
-                                        <% if (item.bodies.length > 0) { %>
+                                        <% if (Object.keys(item.mergedBody).length !== 0) { %>
                                             <div class="card mt-3">
                                                 <div class="card-header">Merged Request body:</div>
                                                 <ul class="list-group list-group-flush">
