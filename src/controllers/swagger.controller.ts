@@ -46,7 +46,7 @@ class SwaggerController {
     };
 
     private getSwaggerPaths = async (swaggerSpec: any) => {
-        const swaggerInfo: any = await swaggerParser.validate(swaggerSpec);
+        const swaggerInfo: any = await swaggerParser.parse(swaggerSpec);
         const {basePath, paths} = swaggerInfo;
         const apiPaths = Object.entries(paths);
 
