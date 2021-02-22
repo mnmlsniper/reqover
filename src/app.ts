@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 import {logger} from './utils/logger';
 import {createProxyMiddleware} from 'http-proxy-middleware';
-import {API_SERVICE_URL} from './config/constants';
+import {API_SERVICE_URL, PROXY_MODE} from './config/constants';
 import isUrl from 'is-url';
 import urlParse from 'url-parse';
 
@@ -36,7 +36,13 @@ class App {
                 onProxyReq: proxyReq,
                 onProxyRes: proxyRes,
                 router: (req) => {
-                    return `${req.protocol}://${req.hostname}`;
+                    let target = `${req.protocol}://${req.hostname}`;
+                    if (PROXY_MODE === 'false') {
+                        target = API_SERVICE_URL;
+                    }
+
+                    logger.info(`Router target ${target}`);
+                    return target;
                 },
             }),
         );
