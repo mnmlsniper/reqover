@@ -10,7 +10,8 @@
         "build": "tsc",
         "test": "jest --forceExit --detectOpenHandles",
         "lint": "eslint --ignore-path .gitignore --ext .ts src/",
-        "lint:fix": "npm run lint -- --fix"
+        "lint:fix": "npm run lint -- --fix",
+        "prod": "cross-env NODE_ENV=production node build/server.js"
     },
     "dependencies": {
         "@apidevtools/swagger-parser": "^10.0.2",
