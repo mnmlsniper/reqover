@@ -6,7 +6,8 @@ import compression from 'compression';
 import {logger} from './utils/logger';
 import {createProxyMiddleware} from 'http-proxy-middleware';
 import {API_SERVICE_URL} from './config/constants';
-import bodyParser from 'body-parser';
+import isUrl from 'is-url';
+import urlParse from 'url-parse';
 
 export const spec = [];
 
@@ -26,7 +27,7 @@ class App {
 
         this.app.use(
             '/',
-            createProxyMiddleware({
+            createProxyMiddleware(this.filter, {
                 target: API_SERVICE_URL,
                 changeOrigin: true,
                 pathRewrite: {
@@ -34,11 +35,18 @@ class App {
                 },
                 onProxyReq: proxyReq,
                 onProxyRes: proxyRes,
-                // router: (req) => {
-                //     return `${req.protocol}://${req.hostname}`;
-                // },
+                router: (req) => {
+                    return `${req.protocol}://${req.hostname}`;
+                },
             }),
         );
+    }
+
+    public filter(pathname, req) {
+        if (pathname == '/favicon.ico') {
+            return false;
+        }
+        return true;
     }
 
     public listen() {
@@ -89,7 +97,7 @@ const proxyReq = (proxyReq, req, next) => {
 const proxyRes = (proxyRes, req, res) => {
     const method = req.method;
     const responseStatus = `${proxyRes.statusCode}`;
-    const path = req.originalUrl.split('?')[0];
+    const path = getPath(req);
     const params = req.query;
     const queryParameters = Object.entries(params).map(([p, v]) => {
         return {name: p, value: v};
@@ -105,4 +113,13 @@ const proxyRes = (proxyRes, req, res) => {
         body: body,
     });
 };
+
+function getPath(req) {
+    const originalUrl = req.originalUrl.split('?')[0];
+    if (isUrl(originalUrl)) {
+        return urlParse(originalUrl).pathname;
+    }
+    return originalUrl;
+}
+
 export default App;
