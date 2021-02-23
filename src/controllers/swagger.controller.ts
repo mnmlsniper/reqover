@@ -149,9 +149,9 @@ class SwaggerController {
         return {
             summary: {
                 operations: {
-                    missing: (missing.length / result.length) * 100,
-                    partial: (partial.length / result.length) * 100,
-                    full: (full.length / result.length) * 100,
+                    missing: +((missing.length / result.length) * 100).toFixed(),
+                    partial: +((partial.length / result.length) * 100).toFixed(),
+                    full: +((full.length / result.length) * 100).toFixed(),
                 },
             },
             all: result,
