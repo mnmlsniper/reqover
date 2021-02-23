@@ -89,6 +89,14 @@ class SwaggerController {
                 const coveredStatusCodes = [...new Set(coveredMethodNames.map((m) => m.response))];
                 const missingStatusCodes = responses.filter((s) => !coveredStatusCodes.includes(s));
 
+                let requestsCount = 0;
+                let bodies = [];
+                if (coveredMethodNames.length > 0) {
+                    const covered = coveredApis.filter((a) => a.method === method.name);
+                    requestsCount = covered.length;
+                    bodies = covered.map((ca) => ca.body);
+                }
+
                 const coveredParameters = [
                     ...new Set(
                         coveredMethodNames
@@ -98,6 +106,11 @@ class SwaggerController {
                             .flat(),
                     ),
                 ];
+
+                if (bodies.length > 0) {
+                    coveredParameters.push('body');
+                }
+
                 const missingParameters = parameters
                     .map(({name, required, type, ...p}) => {
                         return {name, required, in: p.in, type};
@@ -109,14 +122,6 @@ class SwaggerController {
 
                 let status = 'danger';
                 status = +coverage > 0 && +coverage < 100 ? 'warning' : 'success';
-
-                let requestsCount = 0;
-                let bodies = [];
-                if (coveredMethodNames.length > 0) {
-                    const covered = coveredApis.filter((a) => a.method === method.name);
-                    requestsCount = covered.length;
-                    bodies = covered.map((ca) => ca.body);
-                }
 
                 return {
                     path: apiItem['path'],
