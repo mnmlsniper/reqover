@@ -141,11 +141,23 @@ class SwaggerController {
         });
 
         const result = apiCovList.flat();
+
+        const missing = result.filter((res) => res.coverage == 0);
+        const partial = result.filter((res) => res.coverage != 0 && res.coverage < 100);
+        const full = result.filter((res) => res.coverage == 100);
+
         return {
+            summary: {
+                operations: {
+                    missing: (missing.length / result.length) * 100,
+                    partial: (partial.length / result.length) * 100,
+                    full: (full.length / result.length) * 100,
+                },
+            },
             all: result,
-            missing: result.filter((res) => res.coverage == 0),
-            partial: result.filter((res) => res.coverage != 0 && res.coverage < 100),
-            full: result.filter((res) => res.coverage == 100),
+            missing: missing,
+            partial: partial,
+            full: full,
         };
     };
 
