@@ -3,7 +3,7 @@ import swaggerParser from '@apidevtools/swagger-parser';
 import UrlPattern from 'url-pattern';
 import merge from 'deepmerge';
 import {spec} from '../app';
-import {SWAGGER_BASE_PATH, SWAGGER_SPEC_URL, setApiSericeUrl, setSwaggerUrl, setBasePath} from '../config/constants';
+import {SWAGGER_BASE_PATH, SWAGGER_SPEC_URL, setApiSericeUrl, setSwaggerUrl, setBasePath, API_SERVICE_URL} from '../config/constants';
 
 class SwaggerController {
     public specs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -33,12 +33,12 @@ class SwaggerController {
         setApiSericeUrl(serviceUrl);
         setSwaggerUrl(specUrl);
         setBasePath(basePath);
-        
+
         res.send({done: 'ok'});
     };
 
     public config = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        res.render('main');
+        res.render('main', {apiUrl: API_SERVICE_URL, specUrl: SWAGGER_SPEC_URL});
     };
 
     public report = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -165,6 +165,8 @@ class SwaggerController {
         const full = result.filter((res) => res.coverage == 100);
 
         return {
+            apiUrl: API_SERVICE_URL,
+            swaggerSpecUrl: SWAGGER_SPEC_URL,
             summary: {
                 operations: {
                     missing: +((missing.length / result.length) * 100).toFixed(),
