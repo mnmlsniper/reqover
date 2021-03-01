@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <!-- Bootstrap CSS -->
+        <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous" /> -->
+        <link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <title>Swagger coverage</title>
+        <style>
+            .api-path {
+                text-align: left;
+            }
+        </style>
+    </head>
+
+    <body>
+        <nav class="navbar navbar-dark bg-dark">
+            <div class="container">
+                <span class="navbar-brand mb-0 h1">Swagger coverage report</span>
+            </div>
+        </nav>
+        <div class="container mt-3 mb-3">
+            <div class="row">
+                <div class="col">
+                    <form id="configForm">
+                        <div class="mb-3">
+                            <label for="apiServiceUrl" class="form-label">API Service url*</label>
+                            <input type="text" class="form-control" id="apiServiceUrl" value="<%= apiUrl %>" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="specificationUrl" class="form-label">Swagger specification url*</label>
+                            <input type="text" class="form-control" id="specificationUrl" value="<%= specUrl %>" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="basePath" class="form-label">Base path</label>
+                            <input type="text" class="form-control" id="basePath"/>
+                        </div>
+
+                        <button type="submit" id="saveBtn" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script src="/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="/js/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+        <script src="/js/app.js" crossorigin="anonymous"></script>
+    </body>
+</html>
