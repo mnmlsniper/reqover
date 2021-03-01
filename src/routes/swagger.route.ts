@@ -15,6 +15,8 @@ class SwaggerRoute {
         this.router.get('/coverage', this.swaggerController.coverage);
         this.router.get('/specs', this.swaggerController.specs);
         this.router.get('/reset', this.swaggerController.reset);
+        this.router.post('/config', this.swaggerController.saveConfig);
+        this.router.get('/config', this.swaggerController.config);
     }
 }
 

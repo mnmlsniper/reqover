@@ -3,7 +3,7 @@ import swaggerParser from '@apidevtools/swagger-parser';
 import UrlPattern from 'url-pattern';
 import merge from 'deepmerge';
 import {spec} from '../app';
-import {SWAGGER_BASE_PATH, SWAGGER_SPEC_URL} from '../config/constants';
+import {SWAGGER_BASE_PATH, SWAGGER_SPEC_URL, setApiSericeUrl, setSwaggerUrl, setBasePath} from '../config/constants';
 
 class SwaggerController {
     public specs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -28,12 +28,25 @@ class SwaggerController {
         }
     };
 
+    public saveConfig = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const {serviceUrl, specUrl, basePath} = req.body;
+        setApiSericeUrl(serviceUrl);
+        setSwaggerUrl(specUrl);
+        setBasePath(basePath);
+        
+        res.send({done: 'ok'});
+    };
+
+    public config = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        res.render('main');
+    };
+
     public report = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const reportData = await this.getCoverageReport(SWAGGER_SPEC_URL);
             res.render('index', {data: reportData});
         } catch (error) {
-            next(error);
+            res.redirect('/config');
         }
     };
 
