@@ -8,6 +8,7 @@ import {createProxyMiddleware} from 'http-proxy-middleware';
 import {API_SERVICE_URL, PROXY_MODE} from './config/constants';
 import isUrl from 'is-url';
 import urlParse from 'url-parse';
+import querystring from 'querystring';
 
 export const spec = [];
 
@@ -89,13 +90,22 @@ class App {
 
 const proxyReq = (proxyReq, req, next) => {
     // add custom header to request
-    if (req.body) {
-        let bodyData = JSON.stringify(req.body);
-        // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
-        proxyReq.setHeader('Content-Type', 'application/json');
+    if (!req.body || !Object.keys(req.body).length) {
+        return;
+    }
+
+    const contentType = proxyReq.getHeader('Content-Type');
+    const writeBody = (bodyData: string) => {
         proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
-        // stream the content
         proxyReq.write(bodyData);
+    };
+
+    if (contentType === 'application/json') {
+        writeBody(JSON.stringify(req.body));
+    }
+
+    if (contentType === 'application/x-www-form-urlencoded') {
+        writeBody(querystring.stringify(req.body));
     }
     // or log the req
 };
