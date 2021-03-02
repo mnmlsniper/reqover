@@ -10,10 +10,25 @@
         <link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
         <title>Swagger coverage</title>
         <style>
-            .api-path {
-                text-align: left;
+            body {
+                margin: 0;
+            }
+            #voyager {
+                height: 100vh;
+            }
+            .edge.green > path:not(.hover-path),
+            .edge.green > polygon {
+                stroke: #00ff00 !important;
+            }
+            .field.green > polygon {
+                fill: rgba(0, 255, 0, 0.55);
             }
         </style>
+
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/graphql-voyager/dist/voyager.css" />
+        <script src="//cdn.jsdelivr.net/react/15.4.2/react.min.js"></script>
+        <script src="//cdn.jsdelivr.net/react/15.4.2/react-dom.min.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/graphql-voyager@1.0.0-rc.25/dist/voyager.min.js"></script>
     </head>
 
     <body>
@@ -24,7 +39,40 @@
         </nav>
         <div class="container mt-3 mb-3">
             <div class="row">GraphQL</div>
+            <main id="voyager">Loading...</main>
         </div>
+
+        <script>
+            window.addEventListener('load', function () {
+                GraphQLVoyager.init(document.getElementById('voyager'), {
+                    introspection: function (introspectionQuery) {
+                        return fetch('/graphql?query=' + introspectionQuery).then(function (res) {
+                            return res.ok ? res.json() : res.text();
+                        });
+                    },
+                    hideDocs: false,
+                    hideSettings: true,
+                });
+                setInterval(function () {
+                    fetch('/graphql-coverage')
+                        .then(function (res) {
+                            return res.json();
+                        })
+                        .then(function (coverage) {
+                            var greenElements = document.getElementsByClassName('green');
+                            while (greenElements.length) greenElements[0].classList.remove('green');
+                            for (var field in coverage) {
+                                markGreen('[id="FIELD::' + field + '"]');
+                                markGreen('[data-from="FIELD::' + field + '"]');
+                            }
+                        });
+                }, 1000);
+            });
+            function markGreen(selector) {
+                var el = document.querySelector(selector);
+                el && el.classList.add('green');
+            }
+        </script>
         <script src="/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="/js/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
     </body>
