@@ -2,8 +2,10 @@ import {NextFunction, Request, Response} from 'express';
 import {spec} from '../app';
 import {SWAGGER_SPEC_URL, setApiSericeUrl, setSwaggerUrl, setBasePath, setGraphQLUrl, API_SERVICE_URL} from '../config/constants';
 import {getSwaggerPaths, getCoverageReport} from '../services/swagger.service';
+import {graphqlFetch} from '../services/graphql.service';
 
 let swaggerApiList = [];
+let schema = {};
 
 class SwaggerController {
     public specs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -29,6 +31,7 @@ class SwaggerController {
 
     public saveConfig = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const {type, data} = req.body;
+
         if (type === 'swagger') {
             setApiSericeUrl(data.serviceUrl);
             setSwaggerUrl(data.specUrl);
@@ -38,7 +41,11 @@ class SwaggerController {
         }
 
         try {
-            swaggerApiList = await getSwaggerPaths(data.specUrl);
+            if (type === 'swagger') {
+                swaggerApiList = await getSwaggerPaths(data.specUrl);
+            } else {
+                schema = await graphqlFetch(data.graphqlUrl);
+            }
             res.send({done: 'ok'});
         } catch (error) {
             res.status(404).send({error: error.message});
@@ -49,7 +56,7 @@ class SwaggerController {
         res.render('main', {apiUrl: API_SERVICE_URL, specUrl: SWAGGER_SPEC_URL, graphqlUrl: ''});
     };
 
-    public report = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    public swaggerReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         if (swaggerApiList.length == 0) {
             res.redirect('/config');
         }
@@ -57,6 +64,18 @@ class SwaggerController {
         try {
             const reportData = await getCoverageReport(swaggerApiList);
             res.render('index', {data: reportData});
+        } catch (error) {
+            res.redirect('/config');
+        }
+    };
+
+    public graphqlReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        if (Object.keys(schema).length == 0) {
+            res.redirect('/config');
+        }
+
+        try {
+            res.render('graphql');
         } catch (error) {
             res.redirect('/config');
         }

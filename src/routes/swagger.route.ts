@@ -11,7 +11,8 @@ class SwaggerRoute {
 
     private initializeRoutes() {
         this.router.get('/info', this.swaggerController.info);
-        this.router.get('/reqover/swagger', this.swaggerController.report);
+        this.router.get('/reqover/swagger', this.swaggerController.swaggerReport);
+        this.router.get('/reqover/graphql', this.swaggerController.graphqlReport);
         this.router.get('/coverage', this.swaggerController.coverage);
         this.router.get('/specs', this.swaggerController.specs);
         this.router.get('/reset', this.swaggerController.reset);
