@@ -1,10 +1,12 @@
 import {parse} from '@apidevtools/swagger-parser';
+import {GraphQLSchema} from 'graphql';
 
 export let API_SERVICE_URL = process.env.API_SERVICE_URL;
 export let SWAGGER_SPEC_URL = process.env.SWAGGER_SPEC_URL;
 export let SWAGGER_BASE_PATH = process.env.SWAGGER_BASE_PATH;
 export const PROXY_MODE = process.env.PROXY_MODE;
 export let GRAPHQL_URL = process.env.GRAPHQL_URL;
+export let GRAPHQL_SCHEMA: GraphQLSchema = null;
 
 export function setApiSericeUrl(url) {
     API_SERVICE_URL = url;
@@ -20,4 +22,8 @@ export function setBasePath(path) {
 
 export function setGraphQLUrl(path) {
     GRAPHQL_URL = path;
+}
+
+export function setGraphSchema(schema) {
+    GRAPHQL_SCHEMA = schema;
 }

@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 import {logger} from './utils/logger';
 import {createProxyMiddleware} from 'http-proxy-middleware';
-import {API_SERVICE_URL, PROXY_MODE} from './config/constants';
+import {API_SERVICE_URL, PROXY_MODE, GRAPHQL_SCHEMA} from './config/constants';
 import isUrl from 'is-url';
 import urlParse from 'url-parse';
 import querystring from 'querystring';
@@ -50,7 +50,7 @@ class App {
     }
 
     public filter(pathname, req) {
-        if (pathname == '/favicon.ico') {
+        if (pathname.startsWith('/reqover') || pathname == '/favicon.ico') {
             return false;
         }
         return true;
@@ -74,7 +74,7 @@ class App {
         }
 
         this.app.use(hpp());
-        this.app.use(helmet());
+        // this.app.use(helmet());
         this.app.use(compression());
         this.app.use(express.json());
         // this.app.use(express.urlencoded({extended: true}));

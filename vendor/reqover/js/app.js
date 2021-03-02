@@ -20,12 +20,12 @@ $(document).ready(function () {
         // Send the data using post
         $.ajax({
             type: 'POST',
-            url: '/config',
+            url: '/reqover/config',
             dataType: 'json',
             contentType: 'application/json;charset=UTF-8',
             data: JSON.stringify(data),
             success: function (data) {
-                window.location.href = '/reqover/swagger';
+                window.location.href = '/reqover/swagger/report';
             },
             error: function (xhr, status, error) {
                 $('#validationFeedback').text(xhr.responseJSON.error);
@@ -51,12 +51,12 @@ $(document).ready(function () {
         // Send the data using post
         $.ajax({
             type: 'POST',
-            url: '/config',
+            url: '/reqover/graphql/config',
             dataType: 'json',
             contentType: 'application/json;charset=UTF-8',
             data: JSON.stringify(data),
             success: function (data) {
-                window.location.href = '/reqover/graphql';
+                window.location.href = '/reqover/graphql/report';
             },
             error: function (xhr, status, error) {
                 $('#validationFeedbackGQ').text(xhr.responseJSON.error);
