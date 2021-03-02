@@ -41,7 +41,7 @@ class SwaggerController {
     };
 
     public config = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        res.render('main', {apiUrl: API_SERVICE_URL, specUrl: SWAGGER_SPEC_URL});
+        res.render('main', {apiUrl: API_SERVICE_URL, specUrl: SWAGGER_SPEC_URL, graphqlUrl: ''});
     };
 
     public report = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

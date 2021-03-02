@@ -25,24 +25,68 @@
         <div class="container mt-3 mb-3">
             <div class="row">
                 <div class="col">
-                    <form id="configForm">
-                        <div class="mb-3">
-                            <label for="apiServiceUrl" class="form-label">API Service url*</label>
-                            <input type="text" class="form-control" id="apiServiceUrl" value="<%= apiUrl %>" required />
-                        </div>
-                        <div class="mb-3">
-                            <label for="specificationUrl" class="form-label">Swagger specification url*</label>
-                            <input type="text" class="form-control" id="specificationUrl" value="<%= specUrl %>" required />
-                        </div>
+                    <ul class="nav nav-pills flex-column flex-sm-row mb-4" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button
+                                class="nav-link active"
+                                id="swagger-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#swagger"
+                                type="button"
+                                role="tab"
+                                aria-controls="swagger"
+                                aria-selected="true"
+                            >
+                                Swagger
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button
+                                class="nav-link"
+                                id="profile-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#profile"
+                                type="button"
+                                role="tab"
+                                aria-controls="profile"
+                                aria-selected="false"
+                            >
+                                GraphQL
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="swagger" role="tabpanel" aria-labelledby="swagger-tab">
+                            <form id="configForm">
+                                <div class="mb-3">
+                                    <label for="apiServiceUrl" class="form-label">API Service url*</label>
+                                    <input type="text" class="form-control" id="apiServiceUrl" value="<%= apiUrl %>" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="specificationUrl" class="form-label">Swagger specification url*</label>
+                                    <input type="text" class="form-control" id="specificationUrl" value="<%= specUrl %>" required />
+                                </div>
 
-                        <div class="mb-3">
-                            <label for="basePath" class="form-label">Base path</label>
-                            <input type="text" class="form-control" id="basePath" />
-                            <div id="validationFeedback" class="invalid-feedback">Please select a valid state.</div>
-                        </div>
+                                <div class="mb-3">
+                                    <label for="basePath" class="form-label">Base path</label>
+                                    <input type="text" class="form-control" id="basePath" />
+                                    <div id="validationFeedback" class="invalid-feedback">Please select a valid state.</div>
+                                </div>
 
-                        <button type="submit" id="saveBtn" class="btn btn-primary">Save</button>
-                    </form>
+                                <button type="submit" id="saveBtn" class="btn btn-warning">Save</button>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                            <form id="grapqhQlForm">
+                                <div class="mb-3">
+                                    <label for="graphqlUrl" class="form-label">API Service url*</label>
+                                    <input type="text" class="form-control" id="graphqlUrl" value="<%= graphqlUrl %>" required />
+                                </div>
+                               
+                                <button type="submit" id="saveBtn" class="btn btn-warning">Save</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
