@@ -5,7 +5,7 @@ Swagger coverage server is language agnostic tool that gives a picture about cov
 ### Usage example:
 
 ```
-docker run -p 3000:3000 -e API_SERVICE_URL='https://petstore.swagger.io' -e SWAGGER_SPEC='https://petstore.swagger.io/v2/swagger.json' spirogov/swagger-coverage
+docker run -p 3000:3000  reqover/reqover:latest
 ```
 
 ```
