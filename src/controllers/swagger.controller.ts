@@ -5,6 +5,8 @@ import merge from 'deepmerge';
 import {spec} from '../app';
 import {SWAGGER_BASE_PATH, SWAGGER_SPEC_URL, setApiSericeUrl, setSwaggerUrl, setBasePath, API_SERVICE_URL} from '../config/constants';
 
+let swaggerApiList = [];
+
 class SwaggerController {
     public specs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
@@ -21,8 +23,7 @@ class SwaggerController {
 
     public info = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const apiList = await this.getSwaggerPaths(SWAGGER_SPEC_URL);
-            res.send(apiList);
+            res.send(swaggerApiList);
         } catch (error) {
             next(error);
         }
@@ -33,8 +34,13 @@ class SwaggerController {
         setApiSericeUrl(serviceUrl);
         setSwaggerUrl(specUrl);
         setBasePath(basePath);
-
-        res.send({done: 'ok'});
+        try {
+            swaggerApiList = await this.getSwaggerPaths(specUrl);
+            res.send({done: 'ok'});
+        } catch (error) {
+            // next(error);
+            res.status(404).send({error: error.message});
+        }
     };
 
     public config = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -43,7 +49,7 @@ class SwaggerController {
 
     public report = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const reportData = await this.getCoverageReport(SWAGGER_SPEC_URL);
+            const reportData = await this.getCoverageReport(swaggerApiList);
             res.render('index', {data: reportData});
         } catch (error) {
             res.redirect('/config');
@@ -52,7 +58,7 @@ class SwaggerController {
 
     public coverage = async (req: any, res: Response, next: NextFunction): Promise<void> => {
         try {
-            res.send(await this.getCoverageReport(SWAGGER_SPEC_URL));
+            res.send(await this.getCoverageReport(swaggerApiList));
         } catch (error) {
             next(error);
         }
@@ -88,8 +94,7 @@ class SwaggerController {
         return apiList;
     };
 
-    private getCoverageReport = async (swaggerSpec: any) => {
-        const apiList = await this.getSwaggerPaths(swaggerSpec);
+    private getCoverageReport = async (apiList: any) => {
         const swaggerUrls = apiList.map((u: any) => u.path);
 
         const apiCovList: any = apiList.map((apiItem) => {

@@ -24,6 +24,10 @@ $(document).ready(function () {
             success: function (data) {
                 window.location.href = '/report';
             },
+            error: function (xhr, status, error) {
+                $('#validationFeedback').text(xhr.responseJSON.error);
+                $('#validationFeedback').show();
+            },
         });
     });
 });
