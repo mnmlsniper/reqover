@@ -45,6 +45,10 @@ class SwaggerController {
     };
 
     public report = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        if (swaggerApiList.length == 0) {
+            res.redirect('/config');
+        }
+
         try {
             const reportData = await getCoverageReport(swaggerApiList);
             res.render('index', {data: reportData});
