@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    $('#configForm').submit(function (event) {
+    $('#swaggerForm').submit(function (event) {
         // Stop form from submitting normally
         event.preventDefault();
 
@@ -9,9 +9,12 @@ $(document).ready(function () {
         var basePath = $('#basePath').val();
 
         var data = {
-            serviceUrl: apiServiceUrl,
-            specUrl: specUrl,
-            basePath: basePath,
+            type: 'swagger',
+            data: {
+                serviceUrl: apiServiceUrl,
+                specUrl: specUrl,
+                basePath: basePath,
+            },
         };
 
         // Send the data using post
@@ -22,7 +25,7 @@ $(document).ready(function () {
             contentType: 'application/json;charset=UTF-8',
             data: JSON.stringify(data),
             success: function (data) {
-                window.location.href = '/report';
+                window.location.href = '/reqover/swagger';
             },
             error: function (xhr, status, error) {
                 $('#validationFeedback').text(xhr.responseJSON.error);

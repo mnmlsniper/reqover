@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from 'express';
 import {spec} from '../app';
-import {SWAGGER_SPEC_URL, setApiSericeUrl, setSwaggerUrl, setBasePath, API_SERVICE_URL} from '../config/constants';
+import {SWAGGER_SPEC_URL, setApiSericeUrl, setSwaggerUrl, setBasePath, setGraphQLUrl, API_SERVICE_URL} from '../config/constants';
 import {getSwaggerPaths, getCoverageReport} from '../services/swagger.service';
 
 let swaggerApiList = [];
@@ -28,12 +28,17 @@ class SwaggerController {
     };
 
     public saveConfig = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const {serviceUrl, specUrl, basePath} = req.body;
-        setApiSericeUrl(serviceUrl);
-        setSwaggerUrl(specUrl);
-        setBasePath(basePath);
+        const {type, data} = req.body;
+        if (type === 'swagger') {
+            setApiSericeUrl(data.serviceUrl);
+            setSwaggerUrl(data.specUrl);
+            setBasePath(data.basePath);
+        } else {
+            setGraphQLUrl(data.graphqlUrl);
+        }
+
         try {
-            swaggerApiList = await getSwaggerPaths(specUrl);
+            swaggerApiList = await getSwaggerPaths(data.specUrl);
             res.send({done: 'ok'});
         } catch (error) {
             res.status(404).send({error: error.message});
