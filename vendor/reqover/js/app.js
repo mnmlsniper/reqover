@@ -8,6 +8,13 @@ $(document).ready(function () {
         var specUrl = $('#specificationUrl').val();
         var basePath = $('#basePath').val();
 
+        var headers = {};
+        $('.headers').each(function () {
+            var name = $(this).children('.name').val();
+            var value = $(this).children('.value').val();
+            headers[[name]] = value;
+        });
+
         var data = {
             type: 'swagger',
             data: {
