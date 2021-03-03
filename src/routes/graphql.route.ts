@@ -17,6 +17,7 @@ class GraphQLRoute {
         this.router.get('/reqover/graphiql', this.graphqlController.graphql);
         this.router.post('/reqover/graphql', this.graphqlController.graphql);
         this.router.get('/reqover/graphql', this.graphqlController.graphql);
+        this.router.get('/reqover/graphql/schema', this.graphqlController.getIntrospectionSchema);
         this.router.post('/reqover/graphql/config', this.graphqlController.saveConfig);
         this.router.get('/reqover/graphql/report', this.graphqlController.graphqlReport);
     }

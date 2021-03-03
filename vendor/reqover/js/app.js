@@ -48,10 +48,20 @@ $(document).ready(function () {
         // Get some values from elements on the page:
         var graphqlUrl = $('#graphqlUrl').val();
 
+        var headers = {};
+        $('.gh-headers').each(function () {
+            var name = $(this).children('.name').val();
+            var value = $(this).children('.value').val();
+            if (name && value) {
+                headers[[name]] = value;
+            }
+        });
+
         var data = {
             type: 'graphql',
             data: {
                 graphqlUrl: graphqlUrl,
+                headers: headers,
             },
         };
 
