@@ -28,7 +28,7 @@
             window.addEventListener('load', function () {
                 GraphQLVoyager.init(document.getElementById('voyager'), {
                     introspection: function (introspectionQuery) {
-                        return fetch('/reqover/graphql?query=' + introspectionQuery).then(function (res) {
+                        return fetch('/reqover/graphql/schema?query=' + introspectionQuery).then(function (res) {
                             return res.ok ? res.json() : res.text();
                         });
                     },
