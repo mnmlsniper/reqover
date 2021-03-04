@@ -17,6 +17,12 @@
             #configGear {
                 padding: 25px;
             }
+
+            .accordion-button:not(.collapsed) {
+                color: black;
+                background-color: white;
+                font-weight: 500;
+            }
         </style>
     </head>
 
@@ -148,32 +154,28 @@
                     </ul>
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
-                                <div class="accordion" id="accordionMain">
-                                    <% Object.entries(data.all.items).forEach(function([key, value]) { %>
-                                        <%- include('api-accordion', {key: key, value: value, name: 'Main'});%>
-                                    <%});%>
-                                </div>
+                            <div class="accordion" id="accordionMain">
+                                <% Object.entries(data.all.items).forEach(function([key, value]) { %> <%- include('api-accordion', {key: key, value: value,
+                                name: 'Main'});%> <%});%>
+                            </div>
                         </div>
 
                         <div class="tab-pane fade show" id="missing" role="tabpanel" aria-labelledby="missing-tab">
                             <div class="accordion" id="accordionMissing">
-                                <% Object.entries(data.missing.items).forEach(function([key, value]) { %>
-                                    <%- include('api-accordion', {key: key, value: value, name: 'Missing'});%>
-                                <%});%>
+                                <% Object.entries(data.missing.items).forEach(function([key, value]) { %> <%- include('api-accordion', {key: key, value: value,
+                                name: 'Missing'});%> <%});%>
                             </div>
                         </div>
                         <div class="tab-pane fade show" id="partial" role="tabpanel" aria-labelledby="partial-tab">
                             <div class="accordion" id="accordionPartial">
-                                <% Object.entries(data.partial.items).forEach(function([key, value]) { %>
-                                    <%- include('api-accordion', {key: key, value: value, name: 'Partial'});%>
-                                <%});%>
+                                <% Object.entries(data.partial.items).forEach(function([key, value]) { %> <%- include('api-accordion', {key: key, value: value,
+                                name: 'Partial'});%> <%});%>
                             </div>
                         </div>
                         <div class="tab-pane fade show" id="covered" role="tabpanel" aria-labelledby="full-tab">
                             <div class="accordion" id="accordionFull">
-                                <% Object.entries(data.full.items).forEach(function([key, value]) { %>
-                                    <%- include('api-accordion', {key: key, value: value, name: 'Full'});%>
-                                <%});%>
+                                <% Object.entries(data.full.items).forEach(function([key, value]) { %> <%- include('api-accordion', {key: key, value: value,
+                                name: 'Full'});%> <%});%>
                             </div>
                         </div>
                     </div>
