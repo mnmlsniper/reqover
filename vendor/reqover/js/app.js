@@ -1,4 +1,19 @@
 $(document).ready(function () {
+    $(document).on('click', '[data-role="add"]', function (e) {
+        e.preventDefault();
+        var container = $('.form-inline > .gh-headers')[0];
+        new_field_group = $(container).clone();
+        new_field_group.find('input').each(function () {
+            $(this).val('');
+        });
+        $(container).after(new_field_group);
+    });
+
+    $(document).on('click', '[data-role="dynamic-fields"] > .form-inline [data-role="remove"]', function (e) {
+        e.preventDefault();
+        $(this).closest('.gh-headers').remove();
+    });
+
     $('#swaggerForm').submit(function (event) {
         // Stop form from submitting normally
         event.preventDefault();
