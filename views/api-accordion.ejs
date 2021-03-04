@@ -1,0 +1,21 @@
+<div class="accordion-item">
+    <h2 class="accordion-header" id="heading<%= key %>">
+        <button
+            class="accordion-button"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapse<%= key %>"
+            aria-expanded="true"
+            aria-controls="collapse<%= key %>"
+        >
+            <%= key %>
+        </button>
+    </h2>
+    <div id="collapse<%= key %>" class="accordion-collapse collapse" aria-labelledby="heading<%= key %>" data-bs-parent="#accordion<%= name %>">
+        <div class="accordion-body">
+            <div class="accordion" id="accordion<%= key %>">
+                <% value.forEach(function(item, index) { %> <%- include('accordion', {key: key, item: item, index: index});%> <%});%>
+            </div>
+        </div>
+    </div>
+</div>

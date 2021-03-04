@@ -3,12 +3,13 @@ import {SWAGGER_BASE_PATH, API_SERVICE_URL, SWAGGER_SPEC_URL} from '../config/co
 import UrlPattern from 'url-pattern';
 import merge from 'deepmerge';
 import {spec} from '../app';
+import _ from 'lodash';
 
 export async function getSwaggerPaths(swaggerSpec: any) {
     const swaggerInfo: any = await swaggerParser.parse(swaggerSpec);
     const {basePath, paths} = swaggerInfo;
     const apiPaths = Object.entries(paths);
-
+    const tags = swaggerInfo.tags?.map((t) => t.name) || ['default'];
     const apiList = apiPaths.map(([apiPath, value]) => {
         let path = `${apiPath}`;
         if (!basePath) {
@@ -19,9 +20,10 @@ export async function getSwaggerPaths(swaggerSpec: any) {
 
         const methods = Object.entries(value).map(([methodName, data]) => {
             const {responses, parameters} = data;
-
+            const tags = data.tags || ['default'];
             return {
                 path: path,
+                tags: tags,
                 name: methodName.toUpperCase(),
                 responses: Object.keys(responses),
                 parameters: parameters ? parameters : [],
@@ -31,13 +33,13 @@ export async function getSwaggerPaths(swaggerSpec: any) {
         return {path: path, methods};
     });
 
-    return apiList;
+    return {tags: tags, apiList: apiList};
 }
 
-export async function getCoverageReport(apiList: any) {
-    const swaggerUrls = apiList.map((u: any) => u.path);
+export async function getCoverageReport(apiData) {
+    const swaggerUrls = apiData.apiList.map((u: any) => u.path);
 
-    const apiCovList: any = apiList.map((apiItem) => {
+    const apiCovList: any = apiData.apiList.map((apiItem) => {
         const coveredApis = findCoveredApis(apiItem, swaggerUrls);
 
         const coveredMethods = apiItem.methods.map((method) => {
@@ -83,6 +85,7 @@ export async function getCoverageReport(apiList: any) {
 
             return {
                 path: apiItem['path'],
+                tags: method.tags,
                 requests: requestsCount,
                 method: name,
                 coverage,
@@ -105,13 +108,21 @@ export async function getCoverageReport(apiList: any) {
 
     const result = apiCovList.flat();
 
+    const tags = apiData.tags;
+
     const missing = result.filter((res) => res.coverage == 0);
     const partial = result.filter((res) => res.coverage != 0 && res.coverage < 100);
     const full = result.filter((res) => res.coverage == 100);
 
+    var all = _.mapValues(_.groupBy(result, 'tags'), (clist) => clist.map((res) => _.omit(res, 'tags')));
+    var missed = _.mapValues(_.groupBy(missing, 'tags'), (clist) => clist.map((res) => _.omit(res, 'tags')));
+    var partially = _.mapValues(_.groupBy(partial, 'tags'), (clist) => clist.map((res) => _.omit(res, 'tags')));
+    var fully = _.mapValues(_.groupBy(full, 'tags'), (clist) => clist.map((res) => _.omit(res, 'tags')));
+
     return {
         apiUrl: API_SERVICE_URL,
         swaggerSpecUrl: SWAGGER_SPEC_URL,
+        tags: tags,
         summary: {
             operations: {
                 missing: +((missing.length / result.length) * 100).toFixed(),
@@ -119,10 +130,10 @@ export async function getCoverageReport(apiList: any) {
                 full: +((full.length / result.length) * 100).toFixed(),
             },
         },
-        all: result,
-        missing: missing,
-        partial: partial,
-        full: full,
+        all: {size: result.length, items: all},
+        missing: {size: missing.length, items: missed},
+        partial: {size: partial.length, items: partially},
+        full: {size: full.length, items: fully},
     };
 }
 

@@ -35,14 +35,10 @@
         </nav>
         <div class="container mt-3 mb-3">
             <div class="row">
-                <div class="col">
-                    API url: <a href="<%= data.apiUrl %>"><%= data.apiUrl %></a>
-                </div>
+                <div class="col">API url: <a href="<%= data.apiUrl %>"><%= data.apiUrl %></a></div>
             </div>
             <div class="row mb-3">
-                <div class="col">
-                    Swagger: <a href="<%= data.swaggerSpecUrl %>"><%= data.swaggerSpecUrl %></a>
-                </div>
+                <div class="col">Swagger: <a href="<%= data.swaggerSpecUrl %>"><%= data.swaggerSpecUrl %></a></div>
             </div>
             <div class="row">
                 <div class="col">
@@ -53,7 +49,7 @@
                                 <div
                                     class="progress-bar bg-danger"
                                     role="progressbar"
-                                    style="width: <%= data.missing.length / data.all.length * 100 %>%"
+                                    style="width: <%= data.missing.size / data.all.size * 100 %>%"
                                     aria-valuenow="15"
                                     aria-valuemin="0"
                                     aria-valuemax="100"
@@ -63,7 +59,7 @@
                                 <div
                                     class="progress-bar bg-warning"
                                     role="progressbar"
-                                    style="width: <%= data.partial.length / data.all.length * 100 %>%"
+                                    style="width: <%= data.partial.size / data.all.size * 100 %>%"
                                     aria-valuenow="30"
                                     aria-valuemin="0"
                                     aria-valuemax="100"
@@ -73,7 +69,7 @@
                                 <div
                                     class="progress-bar bg-success"
                                     role="progressbar"
-                                    style="width: <%= data.full.length / data.all.length * 100 %>%"
+                                    style="width: <%= data.full.size / data.all.size * 100 %>%"
                                     aria-valuenow="20"
                                     aria-valuemin="0"
                                     aria-valuemax="100"
@@ -101,7 +97,7 @@
                                 aria-selected="true"
                             >
                                 All
-                                <span class="badge bg-secondary rounded-pill"><%= data.all.length %></span>
+                                <span class="badge bg-secondary rounded-pill"><%= data.all.size %></span>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -116,7 +112,7 @@
                                 aria-selected="false"
                             >
                                 Missing
-                                <span class="badge bg-danger rounded-pill"><%= data.missing.length %></span>
+                                <span class="badge bg-danger rounded-pill"><%= data.missing.size %></span>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -131,7 +127,7 @@
                                 aria-selected="false"
                             >
                                 Partial
-                                <span class="badge bg-warning rounded-pill"><%= data.partial.length %></span>
+                                <span class="badge bg-warning rounded-pill"><%= data.partial.size %></span>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -146,22 +142,39 @@
                                 aria-selected="false"
                             >
                                 Covered
-                                <span class="badge bg-success rounded-pill"><%= data.full.length %></span>
+                                <span class="badge bg-success rounded-pill"><%= data.full.size %></span>
                             </button>
                         </li>
                     </ul>
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
-                            <%- include('tab', {apiList: data.all});%>
+                                <div class="accordion" id="accordionMain">
+                                    <% Object.entries(data.all.items).forEach(function([key, value]) { %>
+                                        <%- include('api-accordion', {key: key, value: value, name: 'Main'});%>
+                                    <%});%>
+                                </div>
                         </div>
+
                         <div class="tab-pane fade show" id="missing" role="tabpanel" aria-labelledby="missing-tab">
-                            <%- include('tab', {apiList: data.missing});%>
+                            <div class="accordion" id="accordionMissing">
+                                <% Object.entries(data.missing.items).forEach(function([key, value]) { %>
+                                    <%- include('api-accordion', {key: key, value: value, name: 'Missing'});%>
+                                <%});%>
+                            </div>
                         </div>
                         <div class="tab-pane fade show" id="partial" role="tabpanel" aria-labelledby="partial-tab">
-                            <%- include('tab', {apiList: data.partial});%>
+                            <div class="accordion" id="accordionPartial">
+                                <% Object.entries(data.partial.items).forEach(function([key, value]) { %>
+                                    <%- include('api-accordion', {key: key, value: value, name: 'Partial'});%>
+                                <%});%>
+                            </div>
                         </div>
                         <div class="tab-pane fade show" id="covered" role="tabpanel" aria-labelledby="full-tab">
-                            <%- include('tab', {apiList: data.full});%>
+                            <div class="accordion" id="accordionFull">
+                                <% Object.entries(data.full.items).forEach(function([key, value]) { %>
+                                    <%- include('api-accordion', {key: key, value: value, name: 'Full'});%>
+                                <%});%>
+                            </div>
                         </div>
                     </div>
                 </div>

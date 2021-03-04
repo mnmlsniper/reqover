@@ -3,7 +3,7 @@ import {spec} from '../app';
 import {SWAGGER_SPEC_URL, setApiSericeUrl, setSwaggerUrl, setBasePath, setGraphQLUrl, setGraphSchema, API_SERVICE_URL} from '../config/constants';
 import {getSwaggerPaths, getCoverageReport} from '../services/swagger.service';
 
-let swaggerApiList = [];
+let swaggerApiList = {};
 
 class SwaggerController {
     public specs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -49,7 +49,7 @@ class SwaggerController {
     };
 
     public swaggerReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        if (swaggerApiList.length == 0) {
+        if (Object.keys(swaggerApiList).length == 0) {
             res.redirect('/reqover');
         }
 
