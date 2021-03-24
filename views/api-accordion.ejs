@@ -14,7 +14,7 @@
     <div id="collapse<%= key %>" class="accordion-collapse collapse" aria-labelledby="heading<%= key %>" data-bs-parent="#accordion<%= name %>">
         <div class="accordion-body">
             <div class="accordion" id="accordion<%= key %>">
-                <% value.forEach(function(item, index) { %> <%- include('accordion', {key: key, item: item, index: index});%> <%});%>
+                <% value.forEach(function(item, index) { %> <%- include('accordion', {key: key, item: item, index: index, name: name});%> <%});%>
             </div>
         </div>
     </div>
