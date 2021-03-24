@@ -10,6 +10,8 @@ export async function getSwaggerPaths(swaggerSpec: any) {
     const {basePath, paths} = swaggerInfo;
     const apiPaths = Object.entries(paths);
     const tags = swaggerInfo.tags?.map((t) => t.name) || ['default'];
+    const baseApiPath = basePath || SWAGGER_BASE_PATH;
+
     const apiList = apiPaths.map(([apiPath, value]) => {
         let path = `${apiPath}`;
         if (!basePath) {
@@ -33,7 +35,7 @@ export async function getSwaggerPaths(swaggerSpec: any) {
         return {path: path, methods};
     });
 
-    return {tags: tags, apiList: apiList};
+    return {basePath: baseApiPath, tags: tags, apiList: apiList};
 }
 
 export async function getCoverageReport(apiData) {
@@ -114,12 +116,13 @@ export async function getCoverageReport(apiData) {
     const partial = result.filter((res) => res.coverage != 0 && res.coverage < 100);
     const full = result.filter((res) => res.coverage == 100);
 
-    var all = _.mapValues(_.groupBy(result, 'tags'), (clist) => clist.map((res) => _.omit(res, 'tags')));
-    var missed = _.mapValues(_.groupBy(missing, 'tags'), (clist) => clist.map((res) => _.omit(res, 'tags')));
-    var partially = _.mapValues(_.groupBy(partial, 'tags'), (clist) => clist.map((res) => _.omit(res, 'tags')));
-    var fully = _.mapValues(_.groupBy(full, 'tags'), (clist) => clist.map((res) => _.omit(res, 'tags')));
+    const all = _.mapValues(_.groupBy(result, 'tags'), (clist) => clist.map((res) => _.omit(res, 'tags')));
+    const missed = _.mapValues(_.groupBy(missing, 'tags'), (clist) => clist.map((res) => _.omit(res, 'tags')));
+    const partially = _.mapValues(_.groupBy(partial, 'tags'), (clist) => clist.map((res) => _.omit(res, 'tags')));
+    const fully = _.mapValues(_.groupBy(full, 'tags'), (clist) => clist.map((res) => _.omit(res, 'tags')));
 
     return {
+        baseApiPath: apiData.basePath,
         apiUrl: API_SERVICE_URL,
         swaggerSpecUrl: SWAGGER_SPEC_URL,
         tags: tags,
@@ -149,7 +152,6 @@ const findCoveredApis = (apiItem: any, swaggerUrls: any) => {
             return regExMatchOfPath(apiPath, currentPath);
         })
         .map((api) => {
-            console.log();
             const currentPath = api['path'];
             const match = regExMatchOfPath(apiPath, currentPath);
             if (match) {

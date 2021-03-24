@@ -13,7 +13,7 @@ class SwaggerRoute {
         this.router.get('/info', this.swaggerController.info);
         this.router.get('/reqover/swagger/report', this.swaggerController.swaggerReport);
         this.router.get('/coverage', this.swaggerController.coverage);
-        this.router.get('/specs', this.swaggerController.specs);
+        this.router.get('/reqover/specs', this.swaggerController.specs);
         this.router.get('/reset', this.swaggerController.reset);
         this.router.post('/reqover/config', this.swaggerController.saveConfig);
         this.router.get('/reqover', this.swaggerController.config);
