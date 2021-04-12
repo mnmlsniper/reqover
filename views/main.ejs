@@ -71,7 +71,7 @@
                     </ul>
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="swagger" role="tabpanel" aria-labelledby="swagger-tab">
-                            <form id="swaggerForm">
+                            <form id="swaggerForm" autocomplete="on">
                                 <div class="mb-3">
                                     <label for="apiServiceUrl" class="form-label">API Service url*</label>
                                     <input type="text" class="form-control" id="apiServiceUrl" value="<%= apiUrl %>" required />
@@ -96,7 +96,7 @@
                             </form>
                         </div>
                         <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                            <form id="grapqhQlForm" data-role="dynamic-fields">
+                            <form id="grapqhQlForm" data-role="dynamic-fields" autocomplete="on">
                                 <div class="mb-3">
                                     <label for="graphqlUrl" class="form-label">GraphQL url*</label>
                                     <input type="text" class="form-control" id="graphqlUrl" value="<%= graphqlUrl %>" required />
