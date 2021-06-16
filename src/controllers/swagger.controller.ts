@@ -140,7 +140,7 @@ class SwaggerController {
 
         try {
             const reportData = await getCoverageReport(swaggerApiList);
-            res.render('index', {data: reportData});
+            res.render('swagger', {data: reportData});
         } catch (error) {
             res.redirect('/');
         }
