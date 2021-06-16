@@ -71,11 +71,16 @@ export async function getCoverageReport(apiData) {
                 ),
             ];
 
-            if (bodies.length > 0) {
-                coveredParameters.push('body');
+            if (name != 'GET' && bodies.length > 0) {
+                const bodyParams = parameters.filter((p) => p.in == 'body');
+                if (bodyParams.length > 0) {
+                    const bodyParameterName = bodyParams[0].name;
+                    coveredParameters.push(bodyParameterName);
+                }
             }
 
             const missingParameters = parameters
+                .filter((p) => p.in !== 'header')
                 .map(({name, required, type, ...p}) => {
                     return {name, required, in: p.in, type};
                 })
