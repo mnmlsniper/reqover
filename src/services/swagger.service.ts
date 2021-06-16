@@ -2,7 +2,7 @@ import swaggerParser from '@apidevtools/swagger-parser';
 import {SWAGGER_BASE_PATH, API_SERVICE_URL, SWAGGER_SPEC_URL} from '../config/constants';
 import UrlPattern from 'url-pattern';
 import merge from 'deepmerge';
-import {spec} from '../app';
+import {spec} from '../controllers/swagger.controller';
 import _ from 'lodash';
 
 export async function getSwaggerPaths(swaggerSpec: any) {
@@ -14,7 +14,9 @@ export async function getSwaggerPaths(swaggerSpec: any) {
 
     const apiList = apiPaths.map(([apiPath, value]) => {
         let path = `${apiPath}`;
-        if (!basePath) {
+        if (basePath == '/') {
+            path = apiPath;
+        } else if (!basePath) {
             path = `${SWAGGER_BASE_PATH}${apiPath}`;
         } else {
             path = `${basePath}${apiPath}`;

@@ -20,13 +20,13 @@ class GrapqhQLController {
 
     public graphqlReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         if (graphQLSchema && Object.keys(graphQLSchema).length == 0) {
-            res.redirect('/reqover');
+            res.redirect('/');
         }
 
         try {
             res.render('graphql');
         } catch (error) {
-            res.redirect('/reqover');
+            res.redirect('/');
         }
     };
 
