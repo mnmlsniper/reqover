@@ -23,6 +23,10 @@ class ProjectsController {
     public listProjects = async (req: Request, res: Response, next: NextFunction) => {
         res.send(projects);
     };
+
+    public index = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        res.render('projects');
+    };
 }
 
 export default ProjectsController;
