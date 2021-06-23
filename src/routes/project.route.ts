@@ -12,7 +12,7 @@ class ProjectRoute {
     private initializeRoutes() {
         this.router.get('/projects', this.projectsController.listProjects);
         this.router.post('/projects', this.projectsController.createProject);
-        this.router.get('/', this.projectsController.index);
+        this.router.get('/pr', this.projectsController.index);
     }
 }
 
