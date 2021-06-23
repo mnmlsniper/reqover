@@ -91,6 +91,11 @@ class SwaggerController {
         return result;
     };
 
+    public downloadReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const reportData = await getCoverageReport(swaggerApiList);
+        res.render('swagger_report', {data: reportData});
+    };
+
     public specs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             res.send(spec);
