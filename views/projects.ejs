@@ -19,6 +19,17 @@
         </nav>
         <div class="container mt-3 mb-3">
             <div class="row">
+                <form id="createProject" class="row">
+                    <div class="col">
+                      <label for="projectName" class="visually-hidden">Project name</label>
+                      <input type="text" class="form-control" id="projectName" placeholder="Project name">
+                    </div>
+                    <div class="col">
+                      <button type="submit" class="btn btn-primary mb-3">Create</button>
+                    </div>
+                  </form>
+            </div>
+            <div class="row">
                 <div class="col">
                     <div class="list-group"></div>
                 </div>
@@ -27,16 +38,40 @@
         <script src="/reqover/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="/reqover/js/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
         <script>
-            $(document).ready(function () {
+        $(document).ready(function () {
+                $("#createProject").submit(function(e) {
+
+                e.preventDefault(); // avoid to execute the actual submit of the form.
+
+                var form = $(this);
+                var url = "/projects";
+                var formData = {
+                    name: $("#projectName").val(),
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    dataType: "json",
+                    data: formData, // serializes the form's elements.
+                    success: function(data)
+                    {
+                        window.location.reload();
+                    }
+                });
+            });
+            
+
+            function getProjects(){
                 $.ajax({
                     type: 'GET',
                     url: '/projects',
                     success: function (data) {
                         data.forEach(element => {
                             $(".list-group").append(`
-                        <button id="${element.id}" type="button" class="list-group-item list-group-item-action" aria-current="true">
+                        <a id="${element.id}" href="/projects/${element.id}" class="list-group-item list-group-item-action" aria-current="true">
                                 ${element.name}
-                        </button>
+                        </a>
                         `)
                         });
                     },
@@ -45,8 +80,11 @@
                         $('#validationFeedback').show();
                     },
                 });
-                
-            });
+            }
+            
+            getProjects();
+            
+        });
         </script>
     </body>
 </html>
