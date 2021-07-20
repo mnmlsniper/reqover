@@ -1,13 +1,24 @@
 import {NextFunction, Request, Response} from 'express';
+import {API_SERVICE_URL, SWAGGER_SPEC_URL} from '../config/constants';
 
 const projects = [
     {
         id: 1,
-        name: 'Demo',
+        name: 'Demo project',
     },
 ];
 
 class ProjectsController {
+    public get_project_by_id = async (req: Request, res: Response, next: NextFunction) => {
+        const id = req.params.id;
+        const project = projects.filter((p) => p.id === +id)[0];
+        if (project != null) {
+            res.render('main', {apiUrl: API_SERVICE_URL, specUrl: SWAGGER_SPEC_URL, graphqlUrl: ''});
+        }
+
+        res.send('Error');
+    };
+
     public createProject = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const project = projects.slice(-1)[0] as any;
         const body = await req.body;
